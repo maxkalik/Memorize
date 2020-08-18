@@ -47,11 +47,12 @@ struct MemoryGame<CardContent> { // <- this struct uses generic type
         /// First Card is a struct - value type - it is copied every time, so here in the parameter of the func the card is already copied..
         /// So we will try to find out which card in the array cards will be updated
         // let chosenIndex: Int = self.index(of: card)
-        let chosenIndex: Int = cards.firstIndex(matching: card)
-        // let chosenCard: Card = self.cards[chosenIndex] /// another problem is we try to assign to copy Card out of the Array
-        // chosenCard.isFaceUp = !chosenCard.isFaceUp
-        /// So we have to change directly (because we could get the copy)
-        self.cards[chosenIndex].isFaceUp = !self.cards[chosenIndex].isFaceUp
-        print("card chosen: \(card)")
+        if let chosenIndex: Int = cards.firstIndex(matching: card) {
+            // let chosenCard: Card = self.cards[chosenIndex] /// another problem is we try to assign to copy Card out of the Array
+            // chosenCard.isFaceUp = !chosenCard.isFaceUp
+            /// So we have to change directly (because we could get the copy)
+            self.cards[chosenIndex].isFaceUp = !self.cards[chosenIndex].isFaceUp
+            print("card chosen: \(card)")
+        }
     }
 }

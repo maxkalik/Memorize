@@ -31,7 +31,23 @@ struct Grid<Item, ItemView>: View where Item: Identifiable, ItemView: View {
     }
     
     func body(for item: Item, in layout: GridLayout) -> some View {
-        let index = items.firstIndex(matching: item)
+        let index = items.firstIndex(matching: item)!
+        
+        /*
+        // This case if we want return some View conditionaly
+        // Group is like a ZStack and his argument { a View Builder }
+        return Group {
+            if index != nil {
+                viewForItem(item)
+                    .frame(width: layout.itemSize.width, height: layout.itemSize.height)
+                    .position(layout.location(ofItemAt: index!))
+            }
+            // else - will return empty content
+        }
+        */
+        
+        // but we will use just index! because we are sure that array deffinetly will have items
+        // if not - then something really wrong in our code above
         return viewForItem(item)
             .frame(width: layout.itemSize.width, height: layout.itemSize.height)
             .position(layout.location(ofItemAt: index))
