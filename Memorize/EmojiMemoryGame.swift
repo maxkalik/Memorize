@@ -3,7 +3,7 @@ import SwiftUI
 // ViewModel
 // it's a portal between Views and Model
 
-class EmojiMemoryGame {
+class EmojiMemoryGame: ObservableObject { // To make View be Reactive we have to apply this protocol
     // Why class
     /// It's easy to share
     /// one of the most cool thing about class lives in the heap and it has pointers to it
@@ -16,16 +16,26 @@ class EmojiMemoryGame {
     /// it will cause messing up because we can change something we have not to change
     /// so in other words the model could be like opened door
     /// just dont forget private in some vars :)
+    
     // private var model: MemoryGame<String> = MemoryGame<String>(numberOfPairsOfCards: 2) { _ in "😀" }
-    private var model: MemoryGame<String> = EmojiMemoryGame.createMemoryGame()
+    /// @Published is not a swift keyword, it's a property wrapper (property var model: ..)
+    /// @Published (property wrapper) adds a little functionality around a property
+    /// In our case - every time this property (model) chages it calls objectWillChage.send()
+    /// So in the future just add this wrapper to all properties which will chage
+    ///
+    @Published private var model: MemoryGame<String> = EmojiMemoryGame.createMemoryGame()
     
     // static func will make function on the type (not the instance)
     static func createMemoryGame() -> MemoryGame<String> {
-        let emojis = ["👻", "🎃", "🕷"]
-        return MemoryGame<String>(numberOfPairsOfCards: emojis.count) { pairIndex in
+        let emojis = ["👻", "🎃", "🕷", "🧠", "👺"]
+        let numberOfPairs = Int.random(in: 2...emojis.count)
+        return MemoryGame<String>(numberOfPairsOfCards: numberOfPairs) { pairIndex in
             return emojis[pairIndex]
         }
     }
+    
+    // observable function (which will get from ObservableObject protocol)
+    // var objectWillChange: ObservableObjectPublisher // <- we don't need it here because you can use alreay without
     
     // MARK: - Access to the Model
     
@@ -37,6 +47,8 @@ class EmojiMemoryGame {
     // MARK: - Intent(s)
     
     func choose(card: MemoryGame<String>.Card) {
+        // objectWillChange.send() // it will publish to the world
+        /// but we don't need this also here because we can add @Published wrapper to property that will change
         model.choose(card: card)
     }
     
