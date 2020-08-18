@@ -63,7 +63,10 @@ struct CardView: View {
                 RoundedRectangle(cornerRadius: cornerRadius).stroke(lineWidth: edgeLineWidth)
                 Text(card.content)
             } else {
-                RoundedRectangle(cornerRadius: cornerRadius).fill()
+                if !card.isMatched {
+                    RoundedRectangle(cornerRadius: cornerRadius).fill()
+                }
+                // else will draw nothing - empty view. Don't need else here
             }
         }.font(Font.system(size: fontSize(for: size)))
         // .aspectRatio(3/4, contentMode: .fit)

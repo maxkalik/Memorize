@@ -2,12 +2,54 @@ import Foundation
 
 // totaly independent - Model
 
-struct MemoryGame<CardContent> { // <- this struct uses generic type
+// Equtable protocol uses required static func == (Self, Self) -> Bool
+struct MemoryGame<CardContent> where CardContent: Equatable { // <- this struct uses generic type
     var cards: Array<Card>
     
+    // Int? Optional it's because it might be the start of a game and there's no face-up Card, or thre's two face-up Cards
+    /// Btw itelegent doesn't show an error because the var get initialized to nil automatically
+    var indexOfTheOneAndOnlyFaceUpCard: Int? {
+        /// A little concer that we have this state (indexOfTheOneAndOnlyFaceUpCard) that I'm having to keep in sync with another state (chages to the Cards) during the game
+        /// chages to the cards means isFaceUp = false for all of the cards
+        /// It's kinda error-prone way to programm when we have state in two places
+        /// and it's also determinable from the cards array
+        /// so let's use computed this var - so if someone set this var we turn all the other cards face-down
+        get {
+            
+            /*
+            // here we need to look at all cards and see which one isFaceUp and see if there's only one
+            var faceUpCardIndices = [Int]()
+            for index in cards.indices {
+                if cards[index].isFaceUp {
+                    faceUpCardIndices.append(index)
+                }
+            }
+            if faceUpCardIndices.count == 1 {
+                return faceUpCardIndices.first // .first (element in array) is also Optional - Swift communication
+            } else {
+                // return here nil it's because if there's no exactly one card in the face-up card list
+                // we can do this because this computed var is Int?
+                return nil
+            }
+            */
+            
+            // all code above we can write in one line of code
+            cards.indices.filter { cards[$0].isFaceUp }.only
+            
+        }
+        set {
+            for index in cards.indices {
+                // newValue - specific var which appears inside this set only in set computed property
+                /// btw newValue in this case could be nil so Index is an Int, and Int is never equal to Optional that's not set
+                /// sow newValue == with Optional with assosiated integer matched - will be true
+                cards[index].isFaceUp = index == newValue
+            }
+        }
+    }
+    
     struct Card: Identifiable {
-        var isFaceUp: Bool = true
-        var isMatched: Bool = true
+        var isFaceUp: Bool = false
+        var isMatched: Bool = false
         var content: CardContent // don't care type - type parameter
         var id: Int // for identifiable
     }
@@ -47,11 +89,37 @@ struct MemoryGame<CardContent> { // <- this struct uses generic type
         /// First Card is a struct - value type - it is copied every time, so here in the parameter of the func the card is already copied..
         /// So we will try to find out which card in the array cards will be updated
         // let chosenIndex: Int = self.index(of: card)
-        if let chosenIndex: Int = cards.firstIndex(matching: card) {
+        if let chosenIndex: Int = cards.firstIndex(matching: card), !self.cards[chosenIndex].isFaceUp, !cards[chosenIndex].isMatched {
+            // , comma means like && but first will be resolved chosenIndex and after it you can use it for the next condition
+            if let potentialMatchIndex = indexOfTheOneAndOnlyFaceUpCard {
+                if cards[chosenIndex].content == cards[potentialMatchIndex].content {
+                    // but we will get and exception: Binary operator '==' cannot be applied to two 'CardContent' operands
+                    /// == in Swift is not built in to the language - it's operator which assosiated with a function - so it assosiates it with the type function ==
+                    /// this func takes two arguments and returns a bool, but not every type can be in those arguments
+                    /// but luckily that ==  func is in a protocol called Equatable, so we can use Constrains & Gains here to dsay where our CardContent implements Equatable
+                    
+                    cards[chosenIndex].isMatched = true
+                    cards[potentialMatchIndex].isMatched = true
+                }
+                self.cards[chosenIndex].isFaceUp = true
+                
+                // indexOfTheOneAndOnlyFaceUpCard = nil // it's already calculated in this computed var
+            } else {
+                /*
+                // so we do not need it because we already set all the rest of face down in the computed variable
+                for index in cards.indices {
+                    cards[index].isFaceUp = false
+                }
+                */
+                indexOfTheOneAndOnlyFaceUpCard = chosenIndex
+            }
+            
+            // self.cards[chosenIndex].isFaceUp = true // it moved above
+            
             // let chosenCard: Card = self.cards[chosenIndex] /// another problem is we try to assign to copy Card out of the Array
             // chosenCard.isFaceUp = !chosenCard.isFaceUp
             /// So we have to change directly (because we could get the copy)
-            self.cards[chosenIndex].isFaceUp = !self.cards[chosenIndex].isFaceUp
+            // self.cards[chosenIndex].isFaceUp = !self.cards[chosenIndex].isFaceUp
             print("card chosen: \(card)")
         }
     }
