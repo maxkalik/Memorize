@@ -29,18 +29,18 @@ struct EmojiMemoryGameView: View {
                 /// so mostly in SwiftUI self. in closure it's a value types - structs, enums
                 self.viewModel.choose(card: card)
             }
-                .padding(5)
+            .padding(5)
         }
             
-            .padding()
-            .foregroundColor(Color.orange)
-            // This func font modifies the view
-            /// The difference between declarative and imperative programming
-            /// In declarative we just declare this fanc to draw this View
-            /// In imperative we are calling this function to set the font at a certain moment in time
-            /// In our case there is no moment in time with this declarative
-            /// So any time this should draw the View that reflects the Model
-            // .font(viewModel.cards.count < 5 ? Font.largeTitle : Font.body)
+        .padding()
+        .foregroundColor(Color.orange)
+        // This func font modifies the view
+        /// The difference between declarative and imperative programming
+        /// In declarative we just declare this fanc to draw this View
+        /// In imperative we are calling this function to set the font at a certain moment in time
+        /// In our case there is no moment in time with this declarative
+        /// So any time this should draw the View that reflects the Model
+        // .font(viewModel.cards.count < 5 ? Font.largeTitle : Font.body)
     }
 }
 
@@ -55,37 +55,31 @@ struct CardView: View {
     }
     
     // To avoid self in all constants, let's make a func
+    @ViewBuilder // list of views
     private func body(for size: CGSize) -> some View {
-        ZStack {
-            // Vars cannot be created inside a ViewBuilder
-            if card.isFaceUp {
-                RoundedRectangle(cornerRadius: cornerRadius).fill(Color.white)
-                RoundedRectangle(cornerRadius: cornerRadius).stroke(lineWidth: edgeLineWidth)
-                Text(card.content)
-            } else {
-                if !card.isMatched {
-                    RoundedRectangle(cornerRadius: cornerRadius).fill()
-                }
-                // else will draw nothing - empty view. Don't need else here
+        if card.isFaceUp || !card.isMatched {
+            ZStack {
+                // Circle().padding(10).opacity(0.2)
+                Pie(startAngle: Angle.degrees(0-90), endAngle: Angle.degrees(45-90), clockWise: true).padding(10).opacity(0.2)
+                Text(card.content).font(Font.system(size: fontSize(for: size)))
             }
-        }.font(Font.system(size: fontSize(for: size)))
-        // .aspectRatio(3/4, contentMode: .fit)
+            .cardify(isFaceUp: card.isFaceUp)
+            //.modifier(Cardify(isFaceUp: card.isFaceUp))
+        } // else will draw nothing - empty view. Don't need else here (works with @ViewBuilder)
     }
-    
-    // MARK: - Drawing Constants
-    
-    private let cornerRadius: CGFloat = 10.0
-    private let edgeLineWidth: CGFloat = 3
     
     private func fontSize(for size: CGSize) -> CGFloat {
-        min(size.width, size.height) * 0.75
+        min(size.width, size.height) * 0.7
     }
+    
 }
 
 // MARK: - Preview Provider
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        EmojiMemoryGameView(viewModel: EmojiMemoryGame())
+        let game = EmojiMemoryGame()
+        game.choose(card: game.cards[0])
+        return EmojiMemoryGameView(viewModel: game)
     }
 }
