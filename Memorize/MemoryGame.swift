@@ -4,11 +4,11 @@ import Foundation
 
 // Equtable protocol uses required static func == (Self, Self) -> Bool
 struct MemoryGame<CardContent> where CardContent: Equatable { // <- this struct uses generic type
-    var cards: Array<Card>
+    private(set) var cards: Array<Card>
     
     // Int? Optional it's because it might be the start of a game and there's no face-up Card, or thre's two face-up Cards
     /// Btw itelegent doesn't show an error because the var get initialized to nil automatically
-    var indexOfTheOneAndOnlyFaceUpCard: Int? {
+    private var indexOfTheOneAndOnlyFaceUpCard: Int? {
         /// A little concer that we have this state (indexOfTheOneAndOnlyFaceUpCard) that I'm having to keep in sync with another state (chages to the Cards) during the game
         /// chages to the cards means isFaceUp = false for all of the cards
         /// It's kinda error-prone way to programm when we have state in two places

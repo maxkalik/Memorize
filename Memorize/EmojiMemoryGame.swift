@@ -26,7 +26,7 @@ class EmojiMemoryGame: ObservableObject { // To make View be Reactive we have to
     @Published private var model: MemoryGame<String> = EmojiMemoryGame.createMemoryGame()
     
     // static func will make function on the type (not the instance)
-    static func createMemoryGame() -> MemoryGame<String> {
+    private static func createMemoryGame() -> MemoryGame<String> {
         let emojis = ["👻", "🎃", "🕷", "🧠", "👺"]
         let numberOfPairs = Int.random(in: 2...emojis.count)
         return MemoryGame<String>(numberOfPairsOfCards: numberOfPairs) { pairIndex in
