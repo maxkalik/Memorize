@@ -22,14 +22,20 @@ class EmojiMemoryGame: ObservableObject { // To make View be Reactive we have to
     /// @Published (property wrapper) adds a little functionality around a property
     /// In our case - every time this property (model) chages it calls objectWillChage.send()
     /// So in the future just add this wrapper to all properties which will chage
-    ///
+    
     @Published private var model: MemoryGame<String> = EmojiMemoryGame.createMemoryGame()
     
     // static func will make function on the type (not the instance)
     private static func createMemoryGame() -> MemoryGame<String> {
+        let games = ["Hellowin", "Faces", "Animals", "Nature", "Cars", "Random"]
         let emojis = ["👻", "🎃", "🕷", "👺"]
-        let numberOfPairs = emojis.count
-        return MemoryGame<String>(numberOfPairsOfCards: numberOfPairs) { pairIndex in
+        //return MemoryGame<String>(numberOfPairsOfCards: numberOfPairs) { pairIndex in
+            //return emojis[pairIndex]
+        //}
+        
+        return MemoryGame<String>(numberOfGames: games.count, gameNameFactory: { gameIndex -> String in
+            return games[gameIndex]
+        }, numberOfPairsOfCards: emojis.count) { pairIndex -> String in
             return emojis[pairIndex]
         }
     }
@@ -44,7 +50,17 @@ class EmojiMemoryGame: ObservableObject { // To make View be Reactive we have to
         return model.cards
     }
     
+    var games: Array<MemoryGame<String>.Game> {
+        return model.games
+    }
+    
+    // var game: MemoryGame<String>.Game
+    
     // MARK: - Intent(s)
+    
+    func choose(game: MemoryGame<String>.Game) {
+        model.choose(game: game)
+    }
     
     func choose(card: MemoryGame<String>.Card) {
         // objectWillChange.send() // it will publish to the world

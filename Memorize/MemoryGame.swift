@@ -4,6 +4,8 @@ import Foundation
 
 // Equtable protocol uses required static func == (Self, Self) -> Bool
 struct MemoryGame<CardContent> where CardContent: Equatable { // <- this struct uses generic type
+    
+    private(set) var games: Array<Game>
     private(set) var cards: Array<Card>
     
     // Int? Optional it's because it might be the start of a game and there's no face-up Card, or thre's two face-up Cards
@@ -47,6 +49,23 @@ struct MemoryGame<CardContent> where CardContent: Equatable { // <- this struct 
         }
     }
     
+    private var selectedGameIndex: Int? {
+        get {
+            games.indices.filter { games[$0].isSelected }.only
+        }
+        set {
+            for index in games.indices {
+                games[index].isSelected = index == newValue
+            }
+        }
+    }
+    
+    struct Game: Identifiable {
+        var isSelected: Bool = false
+        var name: String
+        var id: Int
+    }
+    
     struct Card: Identifiable {
         var isFaceUp: Bool = false
         var isMatched: Bool = false
@@ -56,12 +75,30 @@ struct MemoryGame<CardContent> where CardContent: Equatable { // <- this struct 
     
     // Initializer is implicitly changing ourself. Of course this is mutating.
     // We don't need to put it here because all inits are mutating
-    init(numberOfPairsOfCards: Int, cardContentFactory: (Int) -> CardContent) {
+    init(numberOfGames: Int,
+         gameNameFactory: (Int) -> String,
+         numberOfPairsOfCards: Int,
+         cardContentFactory: (Int) -> CardContent
+    ) {
+        games = Array<Game>()
+        for gameIndex in 0..<numberOfGames {
+            let name = gameNameFactory(gameIndex)
+            games.append(Game(name: name, id: gameIndex))
+        }
+        
         cards = Array<Card>()    // creating empty array of cards
         for pairIndex in 0..<numberOfPairsOfCards {
             let content = cardContentFactory(pairIndex)
             cards.append(Card(content: content, id: pairIndex * 2))
             cards.append(Card(content: content, id: pairIndex * 2 + 1))
+        }
+        cards.shuffle()
+    }
+    
+    mutating func choose(game: Game) {
+        if let selectedIndex: Int = games.firstIndex(matching: game), !self.games[selectedIndex].isSelected {
+            self.games[selectedIndex].isSelected = true
+            selectedGameIndex = selectedIndex
         }
     }
     
