@@ -52,4 +52,9 @@ class EmojiMemoryGame: ObservableObject { // To make View be Reactive we have to
         model.choose(card: card)
     }
     
+    func resetGame() {
+        // it will redraw all the cards
+        model = EmojiMemoryGame.createMemoryGame()
+    }
+    
 }

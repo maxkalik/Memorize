@@ -1,10 +1,21 @@
 import SwiftUI
 
-struct Pie: Shape {
+struct Pie: Shape { // Shape is already animatable
     
     var startAngle: Angle // A geometric angle whose value can be accessed either in radians or degrees.
     var endAngle: Angle
     var clockWise = false
+    
+    // var deligate
+    var animatableData: AnimatablePair<Double, Double> {
+        get {
+            AnimatablePair(startAngle.radians, endAngle.radians)
+        }
+        set {
+            startAngle = Angle.radians(newValue.first)
+            endAngle = Angle.radians(newValue.second)
+        }
+    }
     
     func path(in rect: CGRect) -> Path {
         var path = Path()
